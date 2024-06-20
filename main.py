@@ -1,6 +1,6 @@
 import time
 
-from solver import Type, search
+from solver import search
 from visualizer import render_configuration
 
 WIDTH = 3

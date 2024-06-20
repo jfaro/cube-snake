@@ -18,6 +18,15 @@ class Vec3:
         return f"{self.x},{self.y},{self.z}"
 
 
+XP = Vec3(1, 0, 0)
+YP = Vec3(0, 1, 0)
+ZP = Vec3(0, 0, 1)
+
+XN = Vec3(-1, 0, 0)
+YN = Vec3(0, -1, 0)
+ZN = Vec3(0, 0, -1)
+
+
 def add(a: Vec3, b: Vec3) -> Vec3:
     return Vec3(a.x + b.x, a.y + b.y, a.z + b.z)
 
@@ -29,24 +38,21 @@ def cmp(a: Vec3, b: Vec3) -> bool:
 class Bounds:
     def __init__(self, init: Vec3, max_width: int):
         self.max_width = max_width
-        self.min_x = init.x
-        self.max_x = init.x
-        self.min_y = init.y
-        self.max_y = init.y
-        self.min_z = init.z
-        self.max_z = init.z
+        self.min_x, self.max_x = init.x, init.x
+        self.min_y, self.max_y = init.y, init.y
+        self.min_z, self.max_z = init.z, init.z
 
     def allows(self, pos: Vec3) -> bool:
         max_diff = self.max_width - 1
-        x_limit_reached = self.max_x - self.min_x == max_diff
-        y_limit_reached = self.max_y - self.min_y == max_diff
-        z_limit_reached = self.max_z - self.min_z == max_diff
+        x_limit = self.max_x - self.min_x == max_diff
+        y_limit = self.max_y - self.min_y == max_diff
+        z_limit = self.max_z - self.min_z == max_diff
 
-        if x_limit_reached and (pos.x > self.max_x or pos.x < self.min_x):
+        if x_limit and (pos.x > self.max_x or pos.x < self.min_x):
             return False
-        if y_limit_reached and (pos.y > self.max_y or pos.y < self.min_y):
+        if y_limit and (pos.y > self.max_y or pos.y < self.min_y):
             return False
-        if z_limit_reached and (pos.z > self.max_z or pos.z < self.min_z):
+        if z_limit and (pos.z > self.max_z or pos.z < self.min_z):
             return False
         return True
 
@@ -55,12 +61,10 @@ class Bounds:
             self.max_x = pos.x
         elif pos.x < self.min_x:
             self.min_x = pos.x
-
         if pos.y > self.max_y:
             self.max_y = pos.y
         elif pos.y < self.min_y:
             self.min_y = pos.y
-
         if pos.z > self.max_z:
             self.max_z = pos.z
         elif pos.z < self.min_z:
@@ -77,34 +81,12 @@ class Component:
         """Returns list of (position, direction) tuples reachable from `src`."""
         if self.type in [Type.END, Type.LINE]:
             return [(add(self.pos, self.dir), self.dir)]
-
         if self.dir.x != 0:
-            directions = [
-                Vec3(0, 1, 0),
-                Vec3(0, -1, 0),
-                Vec3(0, 0, 1),
-                Vec3(0, 0, -1),
-            ]
-            return [(add(self.pos, d), d) for d in directions]
-
+            return [(add(self.pos, d), d) for d in [YP, YN, ZP, ZN]]
         if self.dir.y != 0:
-            directions = [
-                Vec3(1, 0, 0),
-                Vec3(-1, 0, 0),
-                Vec3(0, 0, 1),
-                Vec3(0, 0, -1),
-            ]
-            return [(add(self.pos, d), d) for d in directions]
-
+            return [(add(self.pos, d), d) for d in [XP, XN, ZP, ZN]]
         if self.dir.z != 0:
-            directions = [
-                Vec3(1, 0, 0),
-                Vec3(-1, 0, 0),
-                Vec3(0, 1, 0),
-                Vec3(0, -1, 0),
-            ]
-            return [(add(self.pos, d), d) for d in directions]
-
+            return [(add(self.pos, d), d) for d in [XP, XN, YP, YN]]
         assert False
 
 
