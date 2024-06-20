@@ -6,7 +6,7 @@ from solver import Component, Configuration
 def render_configuration(config: Configuration):
     fig = plt.figure()
     ax = fig.add_subplot(111, projection="3d")
-    
+
     for i in range(len(config.route) - 1):
         beg: Component = config.route[i]
         end: Component = config.route[i + 1]
