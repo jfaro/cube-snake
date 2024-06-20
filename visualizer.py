@@ -14,5 +14,7 @@ def render_configuration(config: Configuration):
             [beg.pos.x, end.pos.x],
             [beg.pos.y, end.pos.y],
             zs=[beg.pos.z, end.pos.z],
+            color="black",
         )
+    plt.axis("off")
     plt.show()

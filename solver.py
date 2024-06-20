@@ -2,7 +2,7 @@ import copy
 import time
 
 
-class Type:
+class ComponentType:
     END = "E"
     LINE = "L"
     CORNER = "C"
@@ -17,6 +17,8 @@ class Vec3:
     def __str__(self) -> str:
         return f"{self.x},{self.y},{self.z}"
 
+
+ORIGIN = Vec3(0, 0, 0)
 
 XP = Vec3(1, 0, 0)
 YP = Vec3(0, 1, 0)
@@ -72,14 +74,14 @@ class Bounds:
 
 
 class Component:
-    def __init__(self, type: Type, pos: Vec3, dir: Vec3):
+    def __init__(self, type: ComponentType, pos: Vec3, dir: Vec3):
         self.type = type
         self.pos = pos
         self.dir = dir
 
     def reachable(self) -> list[tuple[Vec3, Vec3]]:
         """Returns list of (position, direction) tuples reachable from `src`."""
-        if self.type in [Type.END, Type.LINE]:
+        if self.type in [ComponentType.END, ComponentType.LINE]:
             return [(add(self.pos, self.dir), self.dir)]
         if self.dir.x != 0:
             return [(add(self.pos, d), d) for d in [YP, YN, ZP, ZN]]
@@ -111,12 +113,10 @@ class Configuration:
         return True
 
 
-def search(input: list[Type], width: int):
+def search(input: list[ComponentType], width: int):
     max_len = 1
     last_time = time.time()
-    start_pos = Vec3(0, 0, 0)
-    start_dir = Vec3(1, 0, 0)
-    start_component = Component(Type.END, start_pos, start_dir)
+    start_component = Component(ComponentType.END, ORIGIN, XP)
 
     # Prime the search queue.
     search_queue: list[Configuration] = []
@@ -125,13 +125,12 @@ def search(input: list[Type], width: int):
     while search_queue:
         config = search_queue.pop(0)
         route_len = len(config.route)
+
         if route_len > max_len:
             max_len = route_len
             delta = time.time() - last_time
             last_time = time.time()
-            print(
-                f"Max route length: {max_len} ({delta:.4f}s) | queue size = {len(search_queue)}"
-            )
+            print(f"Max length: {max_len} ({delta:.4f}s) | queued: {len(search_queue)}")
 
         # Used up all input components.
         if route_len == len(input):
